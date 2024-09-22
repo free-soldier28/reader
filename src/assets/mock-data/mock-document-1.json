@@ -1,0 +1,26 @@
+{
+    "id": 1,
+    "name": "test document",
+    "pages": [
+        {
+            "pageNumber": 1,
+            "imageUrl": "assets/images/pages/1.png"
+        },
+        {
+            "pageNumber": 2,
+            "imageUrl": "assets/images/pages/2.png"
+        },
+        {
+            "pageNumber": 3,
+            "imageUrl": "assets/images/pages/3.png"
+        },
+        {
+            "pageNumber": 4,
+            "imageUrl": "assets/images/pages/4.png"
+        },
+        {
+            "pageNumber": 5,
+            "imageUrl": "assets/images/pages/5.png"
+        }
+    ]
+}
