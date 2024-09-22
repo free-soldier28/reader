@@ -1,0 +1,9 @@
+<section class="document-links">
+    <h2>Documents:</h2>
+    @for (item of documents; track item.id ) {
+    <a class="link" (click)="openViewer(item.id)">{{ item.name }}</a>
+    }
+    @empty {
+    <span>There are no documents.</span>
+    }
+</section>

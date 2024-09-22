@@ -1,0 +1,13 @@
+.document-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.link {
+    font-size: 18px;
+    text-decoration: underline;
+    &:hover {
+        cursor: pointer;
+    }
+}
