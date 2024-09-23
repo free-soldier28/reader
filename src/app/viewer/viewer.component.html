@@ -1,0 +1,55 @@
+<div class="header">
+    <button type="button" mat-icon-button class="back-btn" (click)="goHome()">
+        <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="document-name">{{ document?.name }}</span>
+
+    <div class="tools">
+        <button mat-icon-button (click)="activateAddText()">
+            <mat-icon [class.is-active]="isAvailableAddingText">text_fields</mat-icon>
+        </button>
+    </div>
+
+    <div class="zoom">
+        <span class="zoom-value">{{ zoom }}%</span>
+        <button class="zoom-btn" mat-icon-button [disabled]="!document?.pages?.length" (click)="zoomPage(1)">
+            <mat-icon>zoom_in</mat-icon>
+        </button>
+        <button class="zoom-btn" mat-icon-button [disabled]="!document?.pages?.length" (click)="zoomPage(-1)">
+            <mat-icon>zoom_out</mat-icon>
+        </button>
+    </div>
+
+    <button mat-icon-button class="save-btn" [disabled]="!annotations?.length" (click)="save()">
+        <mat-icon>save</mat-icon>
+    </button>
+</div>
+
+<div class="content">
+    <div class="pages-wrapper" [style.marginTop.px]="pagesMarginTop"
+        [style.marginBottom.px]="pagesMarginTop"
+        [ngStyle]="{'transform': 'scale(' + scaleFactor + ')'}">
+        @for (page of document?.pages; track page.pageNumber ) {
+        <div [id]="page.pageNumber" class="page">
+            <img class='page-background' [src]="page.imageUrl"
+            (click)="showTextEditor($event, page.pageNumber)">
+        </div>
+        }
+        @empty {
+        <div class="page"></div>
+        }
+    </div>
+</div>
+
+@if (isShowTextEditor) {
+    <textarea
+        #textEditor
+        matInput
+        class="text-editor"
+        [style.width.px]="100"
+        [style.top.px]="textEditorY"
+        [style.left.px]="textEditorX"
+        (blur)="addTextAnnotation()"
+        [formControl]="textCtrl">
+    </textarea>
+}

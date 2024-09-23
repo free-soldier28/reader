@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ViewerComponent } from './viewer/viewer.component';
 
 import { DocumentsComponent } from './documents/documents.component';
 
@@ -8,6 +9,6 @@ import { DocumentsComponent } from './documents/documents.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true,
-  imports: [RouterOutlet, DocumentsComponent]
+  imports: [RouterOutlet, ViewerComponent, DocumentsComponent]
 })
 export class AppComponent{ }
