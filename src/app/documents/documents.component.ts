@@ -8,7 +8,6 @@ import { Document } from "../../interfaces/document.interface";
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss',
   standalone: true,
-  imports: [],
   providers: [DocumentApiService]
 })
 export class DocumentsComponent implements OnInit {
