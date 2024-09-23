@@ -8,6 +8,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { Annotation } from '../../interfaces/annotation.interface';
+import { Page } from '../../interfaces/page.interface';
 
 @Component({
   selector: 'viewer',
@@ -110,7 +111,8 @@ export class ViewerComponent implements OnInit {
   }
 
   addTextAnnotation(): void {
-    const annotation = { 
+    const annotation = {
+      id: crypto.randomUUID(),
       type: 'text',
       data: this.textCtrl.value,
       pageNumber: this.currentPage,
@@ -118,7 +120,7 @@ export class ViewerComponent implements OnInit {
       y: this.clickOnPageY
     } as Annotation;
     this.annotations.push(annotation);
-    this.addAnnotationOnPage(annotation);
+    this.setAnnotationToPages(this.document.pages, [annotation]);
 
     this.isShowTextEditor = false;
     this.textCtrl.reset();
@@ -128,48 +130,49 @@ export class ViewerComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  deleteAnnotation(annotationId: string): void {
+    if (!annotationId) {
+      return;
+    }
+
+    for (let page of this.document.pages) {
+      const index = page.annotations.findIndex(x => x.pageNumber === page.pageNumber && x.id === annotationId);
+      if (index != -1) {
+        page.annotations.splice(index, 1);
+      }
+    }
+
+    this.annotations = this.annotations.filter(x => x.id !== annotationId);
+
+    this.cdr.detectChanges();
+  }
+
   save(): void {
     localStorage.setItem(`doc_${this.document.id}_annotations`, JSON.stringify(this.annotations));
   }
 
-  private addAnnotationOnPage(annotation: Annotation): void {
-    const pageEl = document.getElementById(`${annotation.pageNumber}`);
-
-    const textEl = document.createElement('div');
-    textEl.textContent = annotation.data;
-    textEl.style.position = 'absolute';
-    textEl.style.height = '10px';
-    textEl.style.top = `${annotation.y}px`;
-    textEl.style.left = `${annotation.x}px`;
-
-    pageEl.appendChild(textEl);
-  }
-
-  private getAnnotations(documentId: number): void {
+  private getAnnotations(documentId: number): Annotation[]  {
     const annotationsStr = localStorage.getItem(`doc_${documentId}_annotations`);
-    this.annotations = JSON.parse(annotationsStr) as Annotation[] ?? [];
+    return JSON.parse(annotationsStr) as Annotation[] ?? [];
   }
 
-  private addAnnotationsToPages(): void {
-    if (!this.annotations.length || !this.document?.pages.length) {
+  private setAnnotationToPages(pages: Page[], annotations: Annotation[]): void {
+    if (!pages.length || !annotations.length) {
       return;
     }
 
-    for (let page of this.document?.pages) {
-      const annotation =this.annotations.find(x=> x.pageNumber === page.pageNumber);
-      this.addAnnotationOnPage(annotation);
+    for (let page of pages) {
+      page.annotations = this.annotations.filter(x => x.pageNumber === page.pageNumber);
     }
   }
 
   private getDocument(documentId: number): void {
     this.documentApiService.getDocument(documentId)
       .subscribe(document => {
-        this.document = document;
-        this.getAnnotations(+this.activeRoute.snapshot.paramMap.get('id'));
-        if (this.annotations.length) {
-          setTimeout(() => {
-            this.addAnnotationsToPages();
-          });
+        if (document?.pages?.length) {
+          this.document = document;
+          this.annotations = this.getAnnotations(this.document.id);
+          this.setAnnotationToPages(this.document.pages, this.annotations);
         }
 
         this.cdr.detectChanges();

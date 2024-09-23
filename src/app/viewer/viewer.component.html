@@ -20,7 +20,7 @@
         </button>
     </div>
 
-    <button mat-icon-button class="save-btn" [disabled]="!annotations?.length" (click)="save()">
+    <button mat-icon-button class="save-btn" (click)="save()">
         <mat-icon>save</mat-icon>
     </button>
 </div>
@@ -31,8 +31,14 @@
         [ngStyle]="{'transform': 'scale(' + scaleFactor + ')'}">
         @for (page of document?.pages; track page.pageNumber ) {
         <div [id]="page.pageNumber" class="page">
-            <img class='page-background' [src]="page.imageUrl"
-            (click)="showTextEditor($event, page.pageNumber)">
+            <img class='page-background' [src]="page.imageUrl" (click)="showTextEditor($event, page.pageNumber)">
+            @for (annotation of page.annotations; track annotation.id ) {
+            
+            <div [id]="annotation.id" class="annotation" [style.top.px]="annotation.y" [style.left.px]="annotation.x">
+                <span class="text-annotation">{{ annotation.data }}</span>
+                <mat-icon class="annotation-delete-btn" (click)="deleteAnnotation(annotation.id)">cancel</mat-icon>
+            </div>
+            }
         </div>
         }
         @empty {
