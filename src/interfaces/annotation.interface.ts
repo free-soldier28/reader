@@ -1,6 +1,8 @@
+import { AnnotationType } from "../app/enums/annotation-type.enum";
+
 export interface Annotation {
   id: string;
-  type: 'text' | 'image';
+  type: AnnotationType;
   pageNumber: number;
   x: number;
   y: number;

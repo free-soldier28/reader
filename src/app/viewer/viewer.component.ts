@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { Annotation } from '../../interfaces/annotation.interface';
 import { Page } from '../../interfaces/page.interface';
+import { FileHelper } from '../../helpers/file.helper';
+import { AnnotationType } from '../enums/annotation-type.enum';
 
 @Component({
   selector: 'viewer',
@@ -19,21 +21,22 @@ import { Page } from '../../interfaces/page.interface';
   providers: [DocumentApiService]
 })
 export class ViewerComponent implements OnInit {
+  readonly annotationType = AnnotationType;
+  readonly availableImageExtensions = '.JPEG, .PNG, .WebP';
+
   annotations: Annotation[] = [];
-  clickOnPageX: number;
-  clickOnPageY: number;
+  clickOnPagePosition = { x: 0, y: 0 };
   currentPage: number;
   document: Document;
-  isAvailableAddingText = false;
   isShowTextEditor = false;
   pageHeight = 1200;
   pageWidth = 900;
   pagesMarginTop = 0;
   scaleFactor = 1;
   textCtrl = new FormControl('');
-  textEditorX: number;
-  textEditorY: number;
+  textEditorPosition = { x: 0, y: 0 };
   zoom = 100;
+  currentAnnotationTool: AnnotationType;
 
   @ViewChild('textEditor') textEditor: ElementRef;
 
@@ -82,50 +85,47 @@ export class ViewerComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  activateAddText(): void {
-    this.isAvailableAddingText = !this.isAvailableAddingText;
-  }
-
-  showTextEditor(event, pageNumber: number): void {
-    if (!this.isAvailableAddingText) {
+  setAnnotationTool(value: AnnotationType): void {
+    if (value === this.currentAnnotationTool) {
+      this.currentAnnotationTool = null;
       return;
     }
 
-    this.isShowTextEditor = true;
-    this.cdr.detectChanges();
+    this.currentAnnotationTool = value;
+  }
 
-    setTimeout(() => {
-      this.textEditor.nativeElement.focus();
-    });
+  clickByPage(event, pageNumber: number): void {
+    if (this.currentAnnotationTool === AnnotationType.Text) {
+      this.showTextEditor({ x: event.clientX, y: event.clientY });
+    }
+    else if (this.currentAnnotationTool === AnnotationType.Image) {
+      this.showUploaderImage();
+    }
 
     const pageEl = document.getElementById(`${pageNumber}`);
     const pageRect = pageEl.getBoundingClientRect();
-  
-    this.textEditorX = event.clientX;
-    this.textEditorY = event.clientY;
-
-    this.clickOnPageX = event.clientX - pageRect.left;
-    this.clickOnPageY = event.clientY - pageRect.top;
+    this.clickOnPagePosition.x = event.clientX - pageRect.left;
+    this.clickOnPagePosition.y = event.clientY - pageRect.top;
 
     this.currentPage = pageNumber;
+
+    this.cdr.detectChanges();
+  }
+
+  fileSelected(fileInput: any): void {
+    const file = fileInput.target.files[0] as File;
+    FileHelper.blobToBase64WithoutDataType(file)
+      .subscribe(str => {
+        this.currentAnnotationTool = null;
+        this.addAnnotation(AnnotationType.Image, `data:image/jpeg;base64,${str}`);
+      });
   }
 
   addTextAnnotation(): void {
-    const annotation = {
-      id: crypto.randomUUID(),
-      type: 'text',
-      data: this.textCtrl.value,
-      pageNumber: this.currentPage,
-      x: this.clickOnPageX,
-      y: this.clickOnPageY
-    } as Annotation;
-    this.annotations.push(annotation);
-    this.setAnnotationToPages(this.document.pages, [annotation]);
+    this.addAnnotation(AnnotationType.Text, this.textCtrl.value);
 
     this.isShowTextEditor = false;
     this.textCtrl.reset();
-    this.currentPage = null;
-    this.isAvailableAddingText = false;
 
     this.cdr.detectChanges();
   }
@@ -149,6 +149,40 @@ export class ViewerComponent implements OnInit {
 
   save(): void {
     localStorage.setItem(`doc_${this.document.id}_annotations`, JSON.stringify(this.annotations));
+  }
+
+  private addAnnotation(annotationType: AnnotationType, data: string): void {
+    const annotation = {
+      id: crypto.randomUUID(),
+      type: annotationType,
+      data,
+      pageNumber: this.currentPage,
+      x: this.clickOnPagePosition.x,
+      y: this.clickOnPagePosition.y
+    } as Annotation;
+  
+    this.annotations.push(annotation);
+    this.setAnnotationToPages(this.document.pages, [annotation]);
+
+    this.currentPage = null;
+    this.currentAnnotationTool = null;
+  }
+
+  private showTextEditor(position: { x: number; y: number; }): void {
+    this.isShowTextEditor = true;
+
+    this.textEditorPosition.x = position.x;
+    this.textEditorPosition.y = position.y;
+
+    setTimeout(() => {
+      this.textEditor.nativeElement.focus();
+    });
+  }
+
+  private showUploaderImage(): void {
+    const fileInput = document.getElementById('fileInput');
+
+    fileInput.click();   
   }
 
   private getAnnotations(documentId: number): Annotation[]  {

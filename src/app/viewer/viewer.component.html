@@ -5,8 +5,11 @@
     <span class="document-name">{{ document?.name }}</span>
 
     <div class="tools">
-        <button mat-icon-button (click)="activateAddText()">
-            <mat-icon [class.is-active]="isAvailableAddingText">text_fields</mat-icon>
+        <button mat-icon-button (click)="setAnnotationTool(annotationType.Text)">
+            <mat-icon [class.is-active]="currentAnnotationTool === annotationType.Text">text_fields</mat-icon>
+        </button>
+        <button mat-icon-button (click)="setAnnotationTool(annotationType.Image)">
+            <mat-icon [class.is-active]="currentAnnotationTool === annotationType.Image">add_photo_alternate</mat-icon>
         </button>
     </div>
 
@@ -26,16 +29,15 @@
 </div>
 
 <div class="content">
-    <div class="pages-wrapper" [style.marginTop.px]="pagesMarginTop"
-        [style.marginBottom.px]="pagesMarginTop"
+    <div class="pages-wrapper" [style.marginTop.px]="pagesMarginTop" [style.marginBottom.px]="pagesMarginTop"
         [ngStyle]="{'transform': 'scale(' + scaleFactor + ')'}">
         @for (page of document?.pages; track page.pageNumber ) {
         <div [id]="page.pageNumber" class="page">
-            <img class='page-background' [src]="page.imageUrl" (click)="showTextEditor($event, page.pageNumber)">
+            <img class='page-background' [src]="page.imageUrl" (click)="clickByPage($event, page.pageNumber)">
             @for (annotation of page.annotations; track annotation.id ) {
-            
             <div [id]="annotation.id" class="annotation" [style.top.px]="annotation.y" [style.left.px]="annotation.x">
-                <span class="text-annotation">{{ annotation.data }}</span>
+                <span *ngIf="annotation.type === annotationType.Text" class="text-annotation">{{ annotation.data }}</span>
+                <img *ngIf="annotation.type === annotationType.Image" [src]="annotation.data" class="img-annotation" >
                 <mat-icon class="annotation-delete-btn" (click)="deleteAnnotation(annotation.id)">cancel</mat-icon>
             </div>
             }
@@ -53,9 +55,11 @@
         matInput
         class="text-editor"
         [style.width.px]="100"
-        [style.top.px]="textEditorY"
-        [style.left.px]="textEditorX"
+        [style.top.px]="textEditorPosition?.y"
+        [style.left.px]="textEditorPosition?.x"
         (blur)="addTextAnnotation()"
         [formControl]="textCtrl">
     </textarea>
 }
+
+<input class="file-uploader" type="file" id="fileInput" [accept]="availableImageExtensions" (change)="fileSelected($event)">

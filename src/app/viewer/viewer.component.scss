@@ -102,11 +102,15 @@ $action-primary-color: orange;
 .annotation-delete-btn {
     position: absolute;
     top: -18px;
-    right: 38px;
+    left: -12px;
     display: none;
     color: $action-primary-color;
 
     &:hover {
         cursor: pointer;
     }
+}
+
+.file-uploader {
+    display: none;
 }
