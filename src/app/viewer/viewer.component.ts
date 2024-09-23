@@ -11,13 +11,14 @@ import { Annotation } from '../../interfaces/annotation.interface';
 import { Page } from '../../interfaces/page.interface';
 import { FileHelper } from '../../helpers/file.helper';
 import { AnnotationType } from '../enums/annotation-type.enum';
+import { CdkDrag } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'viewer',
   templateUrl: './viewer.component.html',
   styleUrl: './viewer.component.scss',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatIconModule, CdkDrag],
   providers: [DocumentApiService]
 })
 export class ViewerComponent implements OnInit {
@@ -149,6 +150,10 @@ export class ViewerComponent implements OnInit {
 
   save(): void {
     localStorage.setItem(`doc_${this.document.id}_annotations`, JSON.stringify(this.annotations));
+  }
+
+  onMouseUp(mouseEvent: MouseEvent, pageNumber: number, annotationId: string): void {
+    //ToDo
   }
 
   private addAnnotation(annotationType: AnnotationType, data: string): void {
