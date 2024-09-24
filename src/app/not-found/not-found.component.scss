@@ -1,0 +1,24 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.home-icon {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+
+    &:hover {
+        cursor: pointer;
+        color: orange;
+    }
+}
+
+span {
+    font-size: 10em;
+}
