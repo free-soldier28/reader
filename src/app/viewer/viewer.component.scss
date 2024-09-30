@@ -29,15 +29,8 @@ $action-primary-color: orange;
     }
 }
 
-.save-btn,
-.zoom-btn {
+.save-btn {
     color: $action-primary-color;
-}
-
-.zoom {
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 
 .document-name {

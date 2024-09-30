@@ -13,15 +13,7 @@
         </button>
     </div>
 
-    <div class="zoom">
-        <span class="zoom-value">{{ zoom }}%</span>
-        <button class="zoom-btn" mat-icon-button [disabled]="!document?.pages?.length" (click)="zoomPage(1)">
-            <mat-icon>zoom_in</mat-icon>
-        </button>
-        <button class="zoom-btn" mat-icon-button [disabled]="!document?.pages?.length" (click)="zoomPage(-1)">
-            <mat-icon>zoom_out</mat-icon>
-        </button>
-    </div>
+    <app-zoom [disabled]="!document?.pages?.length" (increased)="zoomIncreased()" (decreased)="zoomDecreased()"></app-zoom>
 
     <button mat-icon-button class="save-btn" (click)="save()">
         <mat-icon>save</mat-icon>

@@ -1,0 +1,11 @@
+$action-primary-color: orange;
+
+:host {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.zoom-btn {
+    color: $action-primary-color;
+}

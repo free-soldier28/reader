@@ -12,13 +12,23 @@ import { Page } from '../../interfaces/page.interface';
 import { FileHelper } from '../../helpers/file.helper';
 import { AnnotationType } from '../enums/annotation-type.enum';
 import { CdkDrag } from '@angular/cdk/drag-drop';
+import { ZoomComponent } from './zoom/zoom.component';
+const COMPONENTS = [
+  ZoomComponent
+];
+
+const MATERIAL_COMPONENTS = [
+  MatButtonModule,
+  MatIconModule,
+  MatInputModule
+]
 
 @Component({
   selector: 'viewer',
   templateUrl: './viewer.component.html',
   styleUrl: './viewer.component.scss',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatIconModule, CdkDrag],
+  imports: [CommonModule, ReactiveFormsModule, ...COMPONENTS, ...MATERIAL_COMPONENTS, CdkDrag],
   providers: [DocumentApiService]
 })
 export class ViewerComponent implements OnInit {
@@ -36,7 +46,6 @@ export class ViewerComponent implements OnInit {
   scaleFactor = 1;
   textCtrl = new FormControl('');
   textEditorPosition = { x: 0, y: 0 };
-  zoom = 100;
   currentAnnotationTool: AnnotationType;
 
   @ViewChild('textEditor') textEditor: ElementRef;
@@ -57,31 +66,20 @@ export class ViewerComponent implements OnInit {
     this.router.navigate(['']);
   }
 
-  zoomPage(value: number): void {
-    if (!this.document.pages?.length){
-      return;
-    }
+  zoomIncreased(): void {
+    this.pageWidth = this.pageWidth * 1.1;
+    this.pageHeight = this.pageHeight  * 1.1;
+    this.scaleFactor = this.scaleFactor + 0.1;
+    this.pagesMarginTop += 280;
 
-    if (value === 1 && this.zoom === 200) {
-      return;
-    }
-    if (value === -1 && this.zoom === 10) {
-      return;
-    }
+    this.cdr.detectChanges();
+  }
 
-    if (value == 1) {
-      this.zoom += 10;
-      this.pageWidth = this.pageWidth * 1.1;
-      this.pageHeight = this.pageHeight  * 1.1;
-      this.scaleFactor = this.scaleFactor + 0.1;
-      this.pagesMarginTop += 280;
-    } else {
-      this.zoom -= 10;
-      this.pageWidth = this.pageWidth * 0.9;
-      this.pageHeight = this.pageHeight * 0.9;
-      this.scaleFactor = this.scaleFactor - 0.1;
-      this.pagesMarginTop -= 280;
-    }
+  zoomDecreased(): void {
+    this.pageWidth = this.pageWidth * 0.9;
+    this.pageHeight = this.pageHeight * 0.9;
+    this.scaleFactor = this.scaleFactor - 0.1;
+    this.pagesMarginTop -= 280;
 
     this.cdr.detectChanges();
   }
