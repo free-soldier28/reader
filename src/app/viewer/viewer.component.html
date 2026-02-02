@@ -2,18 +2,18 @@
     <button type="button" mat-icon-button class="back-btn" (click)="goHome()">
         <mat-icon>arrow_back</mat-icon>
     </button>
-    <span class="document-name">{{ document?.name }}</span>
+    <span class="document-name">{{ document()?.name }}</span>
 
     <div class="tools">
         <button mat-icon-button (click)="setAnnotationTool(annotationType.Text)">
-            <mat-icon [class.is-active]="currentAnnotationTool === annotationType.Text">text_fields</mat-icon>
+            <mat-icon [class.is-active]="currentAnnotationTool() === annotationType.Text">text_fields</mat-icon>
         </button>
         <button mat-icon-button (click)="setAnnotationTool(annotationType.Image)">
-            <mat-icon [class.is-active]="currentAnnotationTool === annotationType.Image">add_photo_alternate</mat-icon>
+            <mat-icon [class.is-active]="currentAnnotationTool() === annotationType.Image">add_photo_alternate</mat-icon>
         </button>
     </div>
 
-    <app-zoom [disabled]="!document?.pages?.length" (increased)="zoomIncreased()" (decreased)="zoomDecreased()"></app-zoom>
+    <app-zoom [disabled]="!document()?.pages?.length" (increased)="zoomIncreased()" (decreased)="zoomDecreased()"></app-zoom>
 
     <button mat-icon-button class="save-btn" (click)="save()">
         <mat-icon>save</mat-icon>
@@ -22,18 +22,18 @@
 
 <div class="content">
     <app-document
-        [pages]="document?.pages"
-        [pagesMarginTop]="pagesMarginTop"
-        [scaleFactor]="scaleFactor"
+        [pages]="document()?.pages"
+        [pagesMarginTop]="pagesMarginTop()"
+        [scaleFactor]="scaleFactor()"
         (pageClicked)="clickByPage($event)"
         (annotationMouseUp)="onMouseUp($event)">
     </app-document>
 </div>
 
 <app-text-editor
-    [show]="isShowTextEditor"
-    [position]="textEditorPosition"
+    [show]="isShowTextEditor()"
+    [position]="textEditorPosition()"
     (textAdded)="addTextAnnotation($event)">
 </app-text-editor>
 
-<input class="file-uploader" type="file" id="fileInput" [accept]="availableImageExtensions" (change)="fileSelected($event)">
+<input #fileInput class="file-uploader" type="file" id="fileInput" [accept]="availableImageExtensions" (change)="fileSelected($event)">
