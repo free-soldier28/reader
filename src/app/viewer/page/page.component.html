@@ -1,4 +1,4 @@
-<div [id]="page.pageNumber" class="page">
+<div [id]="page.pageNumber">
     <img class='page-background' [src]="page.imageUrl" (click)="onPageClick($event)">
     @for (annotation of page.annotations; track annotation.id) {
     <app-annotation

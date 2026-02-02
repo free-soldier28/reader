@@ -1,5 +1,15 @@
 .pages-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
+}
+
+app-page {
+    &:first-child {
+        margin-top: calc(60px + 20px);
+    }
+
+    &:last-child {
+        margin-bottom: 20px;
+    }
 }
