@@ -11,12 +11,14 @@ import { ZoomComponent } from './zoom/zoom.component';
 import { PageComponent } from './page/page.component';
 import { TextEditorComponent } from './text-editor/text-editor.component';
 import { DocumentComponent } from './document/document.component';
+import { AnnotationToolbarComponent } from './annotation-toolbar/annotation-toolbar.component';
 import { AnnotationService } from '../services/annotation.service';
 import { PageService } from '../services/page.service';
 const COMPONENTS = [
   ZoomComponent,
   TextEditorComponent,
-  DocumentComponent
+  DocumentComponent,
+  AnnotationToolbarComponent
 ];
 
 const MATERIAL_COMPONENTS = [

@@ -4,14 +4,10 @@
     </button>
     <span class="document-name">{{ document()?.name }}</span>
 
-    <div class="tools">
-        <button mat-icon-button (click)="setAnnotationTool(annotationType.Text)">
-            <mat-icon [class.is-active]="currentAnnotationTool() === annotationType.Text">text_fields</mat-icon>
-        </button>
-        <button mat-icon-button (click)="setAnnotationTool(annotationType.Image)">
-            <mat-icon [class.is-active]="currentAnnotationTool() === annotationType.Image">add_photo_alternate</mat-icon>
-        </button>
-    </div>
+    <app-annotation-toolbar
+        [selectedTool]="currentAnnotationTool"
+        (toolSelected)="setAnnotationTool($event)">
+    </app-annotation-toolbar>
 
     <app-zoom [disabled]="!document()?.pages?.length" (increased)="zoomIncreased()" (decreased)="zoomDecreased()"></app-zoom>
 

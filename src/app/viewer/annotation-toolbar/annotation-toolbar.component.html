@@ -1,0 +1,8 @@
+<div class="tools">
+    <button mat-icon-button (click)="selectTool(annotationType.Text)">
+        <mat-icon [class.is-active]="selectedTool() === annotationType.Text">text_fields</mat-icon>
+    </button>
+    <button mat-icon-button (click)="selectTool(annotationType.Image)">
+        <mat-icon [class.is-active]="selectedTool() === annotationType.Image">add_photo_alternate</mat-icon>
+    </button>
+</div>

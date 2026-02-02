@@ -1,6 +1,5 @@
 $header-height: 60px;
 $background-color: grey;
-
 $action-primary-color: orange;
 
 :host {
@@ -19,23 +18,33 @@ $action-primary-color: orange;
     left: 0;
     width: 100%;
     z-index: 999;
+    gap: 10px;
+    padding: 0 10px;
 }
 
-.tools {
-    margin: 0 auto;
-
-    .is-active {
-        color: $action-primary-color;
-    }
-}
-
-.save-btn {
-    color: $action-primary-color;
+.back-btn {
+    flex-shrink: 0;
 }
 
 .document-name {
     font-size: 28px;
     color: white;
+    margin-right: 20px;
+}
+
+app-annotation-toolbar {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+app-zoom {
+    flex-shrink: 0;
+}
+
+.save-btn {
+    color: $action-primary-color;
+    flex-shrink: 0;
 }
 
 .content {

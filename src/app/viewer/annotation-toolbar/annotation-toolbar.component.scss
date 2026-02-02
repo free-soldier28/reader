@@ -1,0 +1,9 @@
+$action-primary-color: orange;
+
+.tools {
+    margin: 0 auto;
+
+    .is-active {
+        color: $action-primary-color;
+    }
+}
