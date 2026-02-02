@@ -1,0 +1,11 @@
+<div [id]="page.pageNumber" class="page">
+    <img class='page-background' [src]="page.imageUrl" (click)="onPageClick($event)">
+    @for (annotation of page.annotations; track annotation.id) {
+    <app-annotation
+        [annotation]="annotation"
+        [pageNumber]="page.pageNumber"
+        (annotationDeleted)="annotationDeleted.emit($event)"
+        (annotationMouseUp)="annotationMouseUp.emit($event)">
+    </app-annotation>
+    }
+</div>

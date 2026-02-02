@@ -1,0 +1,12 @@
+@if (show) {
+<textarea
+    #textEditor
+    matInput
+    class="text-editor"
+    [style.width.px]="100"
+    [style.top.px]="position?.y"
+    [style.left.px]="position?.x"
+    (blur)="onBlur()"
+    [formControl]="textCtrl">
+</textarea>
+}

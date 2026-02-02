@@ -1,0 +1,10 @@
+<div [id]="annotation.id"
+    class="annotation"
+    [style.top.px]="annotation.y"
+    [style.left.px]="annotation.x"
+    cdkDrag
+    (mouseup)="onMouseUp($event)">
+    <span *ngIf="annotation.type === annotationType.Text" class="text-annotation">{{ annotation.data }}</span>
+    <img *ngIf="annotation.type === annotationType.Image" [src]="annotation.data" class="img-annotation">
+    <mat-icon class="annotation-delete-btn" (click)="onDelete()">cancel</mat-icon>
+</div>

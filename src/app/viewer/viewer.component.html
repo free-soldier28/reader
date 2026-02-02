@@ -21,33 +21,19 @@
 </div>
 
 <div class="content">
-    <div class="pages-wrapper" [style.marginTop.px]="pagesMarginTop" [style.marginBottom.px]="pagesMarginTop"
-        [ngStyle]="{'transform': 'scale(' + scaleFactor + ')'}">
-        @for (page of document?.pages; track page.pageNumber) {
-        <app-page-annotation 
-            [page]="page"
-            (pageClicked)="clickByPage($event)"
-            (annotationDeleted)="deleteAnnotation($event)"
-            (annotationMouseUp)="onMouseUp($event)">
-        </app-page-annotation>
-        }
-        @empty {
-        <div class="page"></div>
-        }
-    </div>
+    <app-document
+        [pages]="document?.pages"
+        [pagesMarginTop]="pagesMarginTop"
+        [scaleFactor]="scaleFactor"
+        (pageClicked)="clickByPage($event)"
+        (annotationMouseUp)="onMouseUp($event)">
+    </app-document>
 </div>
 
-@if (isShowTextEditor) {
-    <textarea
-        #textEditor
-        matInput
-        class="text-editor"
-        [style.width.px]="100"
-        [style.top.px]="textEditorPosition?.y"
-        [style.left.px]="textEditorPosition?.x"
-        (blur)="addTextAnnotation()"
-        [formControl]="textCtrl">
-    </textarea>
-}
+<app-text-editor
+    [show]="isShowTextEditor"
+    [position]="textEditorPosition"
+    (textAdded)="addTextAnnotation($event)">
+</app-text-editor>
 
 <input class="file-uploader" type="file" id="fileInput" [accept]="availableImageExtensions" (change)="fileSelected($event)">

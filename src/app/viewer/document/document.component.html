@@ -1,0 +1,14 @@
+<div class="pages-wrapper" [style.marginTop.px]="pagesMarginTop" [style.marginBottom.px]="pagesMarginTop"
+    [ngStyle]="{'transform': 'scale(' + scaleFactor + ')'}">
+    @for (page of pages; track page.pageNumber) {
+    <app-page 
+        [page]="page"
+        (pageClicked)="pageClicked.emit($event)"
+        (annotationDeleted)="onAnnotationDeleted($event)"
+        (annotationMouseUp)="annotationMouseUp.emit($event)">
+    </app-page>
+    }
+    @empty {
+    <div class="page"></div>
+    }
+</div>

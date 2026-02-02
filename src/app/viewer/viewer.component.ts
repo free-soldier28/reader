@@ -13,11 +13,15 @@ import { FileHelper } from '../../helpers/file.helper';
 import { AnnotationType } from '../enums/annotation-type.enum';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { ZoomComponent } from './zoom/zoom.component';
-import { PageAnnotationComponent } from './page-annotation/page-annotation.component';
+import { PageComponent } from './page/page.component';
+import { TextEditorComponent } from './text-editor/text-editor.component';
+import { DocumentComponent } from './document/document.component';
 import { AnnotationService } from '../services/annotation.service';
+import { PageService } from '../services/page.service';
 const COMPONENTS = [
   ZoomComponent,
-  PageAnnotationComponent
+  TextEditorComponent,
+  DocumentComponent
 ];
 
 const MATERIAL_COMPONENTS = [
@@ -45,17 +49,15 @@ export class ViewerComponent implements OnInit {
   pageWidth = 900;
   pagesMarginTop = 0;
   scaleFactor = 1;
-  textCtrl = new FormControl('');
   textEditorPosition = { x: 0, y: 0 };
   currentAnnotationTool: AnnotationType;
-
-  @ViewChild('textEditor') textEditor: ElementRef;
 
   constructor(
     private activeRoute: ActivatedRoute,
     private annotationService: AnnotationService,
     private cdr: ChangeDetectorRef,
     private documentApiService: DocumentApiService,
+    private pageService: PageService,
     private router: Router
   ) { }
 
@@ -99,17 +101,14 @@ export class ViewerComponent implements OnInit {
     const { event, pageNumber } = eventData;
     
     if (this.currentAnnotationTool === AnnotationType.Text) {
-      this.showTextEditor({ x: event.clientX, y: event.clientY });
+      this.textEditorPosition = { x: event.clientX, y: event.clientY };
+      this.isShowTextEditor = true;
     }
     else if (this.currentAnnotationTool === AnnotationType.Image) {
       this.showUploaderImage();
     }
 
-    const pageEl = document.getElementById(`${pageNumber}`);
-    const pageRect = pageEl.getBoundingClientRect();
-    this.clickOnPagePosition.x = event.clientX - pageRect.left;
-    this.clickOnPagePosition.y = event.clientY - pageRect.top;
-
+    this.clickOnPagePosition = this.pageService.calculateClickPosition(event, pageNumber);
     this.currentPage = pageNumber;
 
     this.cdr.detectChanges();
@@ -132,10 +131,10 @@ export class ViewerComponent implements OnInit {
       });
   }
 
-  addTextAnnotation(): void {
+  addTextAnnotation(text: string): void {
     const annotation = this.annotationService.addAnnotation(
       AnnotationType.Text,
-      this.textCtrl.value,
+      text,
       this.currentPage,
       this.clickOnPagePosition.x,
       this.clickOnPagePosition.y
@@ -143,20 +142,8 @@ export class ViewerComponent implements OnInit {
     this.annotationService.setAnnotationsToPages(this.document.pages);
 
     this.isShowTextEditor = false;
-    this.textCtrl.reset();
     this.currentPage = null;
     this.currentAnnotationTool = null;
-
-    this.cdr.detectChanges();
-  }
-
-  deleteAnnotation(annotationId: string): void {
-    if (!annotationId) {
-      return;
-    }
-
-    this.annotationService.deleteAnnotation(annotationId);
-    this.annotationService.setAnnotationsToPages(this.document.pages);
 
     this.cdr.detectChanges();
   }
@@ -167,17 +154,6 @@ export class ViewerComponent implements OnInit {
 
   onMouseUp(eventData: { event: MouseEvent; pageNumber: number; annotationId: string }): void {
     //ToDo: Implement drag position update
-  }
-
-  private showTextEditor(position: { x: number; y: number; }): void {
-    this.isShowTextEditor = true;
-
-    this.textEditorPosition.x = position.x;
-    this.textEditorPosition.y = position.y;
-
-    setTimeout(() => {
-      this.textEditor.nativeElement.focus();
-    });
   }
 
   private showUploaderImage(): void {
