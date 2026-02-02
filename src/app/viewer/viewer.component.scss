@@ -75,35 +75,6 @@ $action-primary-color: orange;
     right: 0;
 }
 
-.annotation {
-    height: auto;
-    position: absolute;
-    padding: 5px;
-    text-align: center;
-
-    &:hover {
-        cursor: pointer;
-        border: 1px solid gray;
-        box-sizing: border-box;
-
-        .annotation-delete-btn {
-            display: block;
-        }
-    }
-}
-
-.annotation-delete-btn {
-    position: absolute;
-    top: -18px;
-    left: -12px;
-    display: none;
-    color: $action-primary-color;
-
-    &:hover {
-        cursor: pointer;
-    }
-}
-
 .file-uploader {
     display: none;
 }

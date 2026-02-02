@@ -23,22 +23,13 @@
 <div class="content">
     <div class="pages-wrapper" [style.marginTop.px]="pagesMarginTop" [style.marginBottom.px]="pagesMarginTop"
         [ngStyle]="{'transform': 'scale(' + scaleFactor + ')'}">
-        @for (page of document?.pages; track page.pageNumber ) {
-        <div [id]="page.pageNumber" class="page">
-            <img class='page-background' [src]="page.imageUrl" (click)="clickByPage($event, page.pageNumber)">
-            @for (annotation of page.annotations; track annotation.id ) {
-            <div [id]="annotation.id"
-                class="annotation"
-                [style.top.px]="annotation.y"
-                [style.left.px]="annotation.x"
-                cdkDrag
-                (mouseup)="onMouseUp($event, page.pageNumber, annotation.id)">
-                <span *ngIf="annotation.type === annotationType.Text" class="text-annotation">{{ annotation.data }}</span>
-                <img *ngIf="annotation.type === annotationType.Image" [src]="annotation.data" class="img-annotation" >
-                <mat-icon class="annotation-delete-btn" (click)="deleteAnnotation(annotation.id)">cancel</mat-icon>
-            </div>
-            }
-        </div>
+        @for (page of document?.pages; track page.pageNumber) {
+        <app-page-annotation 
+            [page]="page"
+            (pageClicked)="clickByPage($event)"
+            (annotationDeleted)="deleteAnnotation($event)"
+            (annotationMouseUp)="onMouseUp($event)">
+        </app-page-annotation>
         }
         @empty {
         <div class="page"></div>

@@ -13,8 +13,11 @@ import { FileHelper } from '../../helpers/file.helper';
 import { AnnotationType } from '../enums/annotation-type.enum';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { ZoomComponent } from './zoom/zoom.component';
+import { PageAnnotationComponent } from './page-annotation/page-annotation.component';
+import { AnnotationService } from '../services/annotation.service';
 const COMPONENTS = [
-  ZoomComponent
+  ZoomComponent,
+  PageAnnotationComponent
 ];
 
 const MATERIAL_COMPONENTS = [
@@ -28,14 +31,12 @@ const MATERIAL_COMPONENTS = [
   templateUrl: './viewer.component.html',
   styleUrl: './viewer.component.scss',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ...COMPONENTS, ...MATERIAL_COMPONENTS, CdkDrag],
+  imports: [CommonModule, ReactiveFormsModule, ...COMPONENTS, ...MATERIAL_COMPONENTS],
   providers: [DocumentApiService]
 })
 export class ViewerComponent implements OnInit {
   readonly annotationType = AnnotationType;
   readonly availableImageExtensions = '.JPEG, .PNG, .WebP';
-
-  annotations: Annotation[] = [];
   clickOnPagePosition = { x: 0, y: 0 };
   currentPage: number;
   document: Document;
@@ -52,6 +53,7 @@ export class ViewerComponent implements OnInit {
 
   constructor(
     private activeRoute: ActivatedRoute,
+    private annotationService: AnnotationService,
     private cdr: ChangeDetectorRef,
     private documentApiService: DocumentApiService,
     private router: Router
@@ -93,7 +95,9 @@ export class ViewerComponent implements OnInit {
     this.currentAnnotationTool = value;
   }
 
-  clickByPage(event, pageNumber: number): void {
+  clickByPage(eventData: { event: MouseEvent; pageNumber: number }): void {
+    const { event, pageNumber } = eventData;
+    
     if (this.currentAnnotationTool === AnnotationType.Text) {
       this.showTextEditor({ x: event.clientX, y: event.clientY });
     }
@@ -116,15 +120,32 @@ export class ViewerComponent implements OnInit {
     FileHelper.blobToBase64WithoutDataType(file)
       .subscribe(str => {
         this.currentAnnotationTool = null;
-        this.addAnnotation(AnnotationType.Image, `data:image/jpeg;base64,${str}`);
+        const annotation = this.annotationService.addAnnotation(
+          AnnotationType.Image,
+          `data:image/jpeg;base64,${str}`,
+          this.currentPage,
+          this.clickOnPagePosition.x,
+          this.clickOnPagePosition.y
+        );
+        this.annotationService.setAnnotationsToPages(this.document.pages);
+        this.currentPage = null;
       });
   }
 
   addTextAnnotation(): void {
-    this.addAnnotation(AnnotationType.Text, this.textCtrl.value);
+    const annotation = this.annotationService.addAnnotation(
+      AnnotationType.Text,
+      this.textCtrl.value,
+      this.currentPage,
+      this.clickOnPagePosition.x,
+      this.clickOnPagePosition.y
+    );
+    this.annotationService.setAnnotationsToPages(this.document.pages);
 
     this.isShowTextEditor = false;
     this.textCtrl.reset();
+    this.currentPage = null;
+    this.currentAnnotationTool = null;
 
     this.cdr.detectChanges();
   }
@@ -134,41 +155,18 @@ export class ViewerComponent implements OnInit {
       return;
     }
 
-    for (let page of this.document.pages) {
-      const index = page.annotations.findIndex(x => x.pageNumber === page.pageNumber && x.id === annotationId);
-      if (index != -1) {
-        page.annotations.splice(index, 1);
-      }
-    }
-
-    this.annotations = this.annotations.filter(x => x.id !== annotationId);
+    this.annotationService.deleteAnnotation(annotationId);
+    this.annotationService.setAnnotationsToPages(this.document.pages);
 
     this.cdr.detectChanges();
   }
 
   save(): void {
-    localStorage.setItem(`doc_${this.document.id}_annotations`, JSON.stringify(this.annotations));
+    this.annotationService.saveAnnotations(this.document.id);
   }
 
-  onMouseUp(mouseEvent: MouseEvent, pageNumber: number, annotationId: string): void {
-    //ToDo
-  }
-
-  private addAnnotation(annotationType: AnnotationType, data: string): void {
-    const annotation = {
-      id: crypto.randomUUID(),
-      type: annotationType,
-      data,
-      pageNumber: this.currentPage,
-      x: this.clickOnPagePosition.x,
-      y: this.clickOnPagePosition.y
-    } as Annotation;
-  
-    this.annotations.push(annotation);
-    this.setAnnotationToPages(this.document.pages, [annotation]);
-
-    this.currentPage = null;
-    this.currentAnnotationTool = null;
+  onMouseUp(eventData: { event: MouseEvent; pageNumber: number; annotationId: string }): void {
+    //ToDo: Implement drag position update
   }
 
   private showTextEditor(position: { x: number; y: number; }): void {
@@ -188,28 +186,13 @@ export class ViewerComponent implements OnInit {
     fileInput.click();   
   }
 
-  private getAnnotations(documentId: number): Annotation[]  {
-    const annotationsStr = localStorage.getItem(`doc_${documentId}_annotations`);
-    return JSON.parse(annotationsStr) as Annotation[] ?? [];
-  }
-
-  private setAnnotationToPages(pages: Page[], annotations: Annotation[]): void {
-    if (!pages.length || !annotations.length) {
-      return;
-    }
-
-    for (let page of pages) {
-      page.annotations = this.annotations.filter(x => x.pageNumber === page.pageNumber);
-    }
-  }
-
   private getDocument(documentId: number): void {
     this.documentApiService.getDocument(documentId)
       .subscribe(document => {
         if (document?.pages?.length) {
           this.document = document;
-          this.annotations = this.getAnnotations(this.document.id);
-          this.setAnnotationToPages(this.document.pages, this.annotations);
+          this.annotationService.loadAnnotations(this.document.id);
+          this.annotationService.setAnnotationsToPages(this.document.pages);
         }
 
         this.cdr.detectChanges();
